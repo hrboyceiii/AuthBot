@@ -88,7 +88,7 @@ namespace AuthBot.Controllers
                     {
                         // Exchange the Auth code with Access token
                         var token = await VisualStudioOnlineHelper.GetTokenByAuthCodeAsync(code);
-                        authResult = token;
+                        VSOAuthResult _VsoAuthResult = token;
                     }
 
                     IStateClient sc = scope.Resolve<IStateClient>();

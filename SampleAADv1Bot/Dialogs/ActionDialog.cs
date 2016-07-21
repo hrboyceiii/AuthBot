@@ -39,8 +39,6 @@ namespace SampleAADV1Bot.Dialogs
 
             if (message.Text == "logon")
             {
-
-
                 //endpoint v1
                 if (string.IsNullOrEmpty(await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"])))
                 {
@@ -68,6 +66,7 @@ namespace SampleAADV1Bot.Dialogs
             }
             else
             {
+                await context.PostAsync("say what ?");
                 context.Wait(MessageReceivedAsync);
             }
         }

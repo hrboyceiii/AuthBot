@@ -163,6 +163,7 @@
     <Compile Include="Models\CancellationWords.cs" />
     <Compile Include="Models\MemoryTokenCacheADAL.cs" />
     <Compile Include="Models\MemoryTokenCacheMSAL.cs" />
+    <Compile Include="Models\VSOAuthResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -46,7 +46,6 @@ namespace AuthBot.Helpers
                 //    "&scope=" + HttpUtility.UrlEncode("openid profile " + string.Join(" ", scopes)) +
                 //    "&state=" + encodedCookie;
 
-
                 var uri = await client.GetAuthorizationRequestUrlAsync(
                    scopes,
                     null,
