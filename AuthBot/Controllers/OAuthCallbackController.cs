@@ -69,6 +69,7 @@ namespace AuthBot.Controllers
                 {
                     var client = scope.Resolve<IConnectorClient>();                
                     AuthResult authResult = null;
+
                     if (string.Equals(AuthSettings.Mode, "v1", StringComparison.OrdinalIgnoreCase))
                     {
                         // Exchange the Auth code with Access token
@@ -87,8 +88,7 @@ namespace AuthBot.Controllers
                     else if (string.Equals(AuthSettings.Mode, "vso", StringComparison.OrdinalIgnoreCase))
                     {
                         // Exchange the Auth code with Access token
-                        var token = await VisualStudioOnlineHelper.GetTokenByAuthCodeAsync(code);
-                        VSOAuthResult _VsoAuthResult = token;
+                        authResult = await VisualStudioOnlineHelper.GetTokenByAuthCodeAsync(code);
                     }
 
                     IStateClient sc = scope.Resolve<IStateClient>();

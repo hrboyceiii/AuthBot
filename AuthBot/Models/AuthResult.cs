@@ -11,7 +11,15 @@ namespace AuthBot.Models
         public string UserUniqueId { get; set; }
         public long ExpiresOnUtcTicks { get; set; }
         public byte[] TokenCache { get; set; }
-     
+
+        public String tokenType { get; set; }
+
+        public String expiresIn { get; set; }
+
+        public String refreshToken { get; set; }
+
+        public String authType { get; set; } //if AD or VSO
+
         public static AuthResult FromADALAuthenticationResult(Microsoft.IdentityModel.Clients.ActiveDirectory.AuthenticationResult authResult, Microsoft.IdentityModel.Clients.ActiveDirectory.TokenCache tokenCache)
         {
             var result = new AuthResult
@@ -20,7 +28,11 @@ namespace AuthBot.Models
                 UserName = $"{authResult.UserInfo.GivenName} {authResult.UserInfo.FamilyName}",
                 UserUniqueId = authResult.UserInfo.UniqueId,
                 ExpiresOnUtcTicks = authResult.ExpiresOn.UtcTicks,
-                TokenCache = tokenCache.Serialize()
+                TokenCache = tokenCache.Serialize(),
+                tokenType = "not defined via AD auth",
+                expiresIn = "not defined via AD auth",
+                refreshToken = "not defined via AD auth",
+                authType = "ad"
             };
 
             return result;
@@ -34,12 +46,34 @@ namespace AuthBot.Models
                 UserName = $"{authResult.User.Name}",
                 UserUniqueId = authResult.User.UniqueId,
                 ExpiresOnUtcTicks = authResult.ExpiresOn.UtcTicks,
-                TokenCache = tokenCache.Serialize()
+                TokenCache = tokenCache.Serialize(),
+                tokenType = "not defined via AD auth",
+                expiresIn = "not defined via AD auth",
+                refreshToken = "not defined via AD auth",
+
+                authType = "ad"
             };
 
             return result;
         }
 
+        public static AuthResult FromVSOAuthenticationResult(VSOAuthResult authResult)
+        {
+            var result = new AuthResult
+            {
+                AccessToken = authResult.accessToken,
+                UserName = "not defined via VSO",
+                UserUniqueId = "not defined via VSO",
+                ExpiresOnUtcTicks = -1,
+                TokenCache = new byte [0],
+                tokenType = authResult.tokenType,
+                expiresIn =authResult.expiresIn,
+                refreshToken=authResult.refreshToken,
+                authType = "vso"
+            };
+
+            return result;
+        }
     }
 }
 //*********************************************************
