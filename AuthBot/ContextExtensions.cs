@@ -18,12 +18,19 @@ namespace AuthBot
             {
                 try
                 {
-                    InMemoryTokenCacheADAL tokenCache = new InMemoryTokenCacheADAL(authResult.TokenCache);
-                    var result = await AzureActiveDirectoryHelper.GetToken(authResult.UserUniqueId, tokenCache, resourceId);
-                    authResult.AccessToken = result.AccessToken;
-                    authResult.ExpiresOnUtcTicks = result.ExpiresOnUtcTicks;
-                    authResult.TokenCache = tokenCache.Serialize();
-                    context.StoreAuthResult(authResult);
+                    if (string.Equals(authResult.authType, "vso", StringComparison.OrdinalIgnoreCase))
+                    {
+                        //is Token still valid ?
+
+                    }
+                    else { 
+                        InMemoryTokenCacheADAL tokenCache = new InMemoryTokenCacheADAL(authResult.TokenCache);
+                        var result = await AzureActiveDirectoryHelper.GetToken(authResult.UserUniqueId, tokenCache, resourceId);
+                        authResult.AccessToken = result.AccessToken;
+                        authResult.ExpiresOnUtcTicks = result.ExpiresOnUtcTicks;
+                        authResult.TokenCache = tokenCache.Serialize();
+                        context.StoreAuthResult(authResult);
+                    }
                 }
                 catch (Exception ex)
                 {

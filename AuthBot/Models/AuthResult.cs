@@ -14,8 +14,6 @@ namespace AuthBot.Models
 
         public String tokenType { get; set; }
 
-        public String expiresIn { get; set; }
-
         public String refreshToken { get; set; }
 
         public String authType { get; set; } //if AD or VSO
@@ -30,7 +28,6 @@ namespace AuthBot.Models
                 ExpiresOnUtcTicks = authResult.ExpiresOn.UtcTicks,
                 TokenCache = tokenCache.Serialize(),
                 tokenType = "not defined via AD auth",
-                expiresIn = "not defined via AD auth",
                 refreshToken = "not defined via AD auth",
                 authType = "ad"
             };
@@ -48,7 +45,6 @@ namespace AuthBot.Models
                 ExpiresOnUtcTicks = authResult.ExpiresOn.UtcTicks,
                 TokenCache = tokenCache.Serialize(),
                 tokenType = "not defined via AD auth",
-                expiresIn = "not defined via AD auth",
                 refreshToken = "not defined via AD auth",
 
                 authType = "ad"
@@ -59,15 +55,17 @@ namespace AuthBot.Models
 
         public static AuthResult FromVSOAuthenticationResult(VSOAuthResult authResult)
         {
+
+            long _expiresOnUtcTicks = DateTime.UtcNow.AddSeconds(Int32.Parse(authResult.expiresIn)).Ticks; 
+
             var result = new AuthResult
             {
                 AccessToken = authResult.accessToken,
                 UserName = "not defined via VSO",
                 UserUniqueId = "not defined via VSO",
-                ExpiresOnUtcTicks = -1,
+                ExpiresOnUtcTicks = _expiresOnUtcTicks, 
                 TokenCache = new byte [0],
                 tokenType = authResult.tokenType,
-                expiresIn =authResult.expiresIn,
                 refreshToken=authResult.refreshToken,
                 authType = "vso"
             };
