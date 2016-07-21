@@ -27,9 +27,9 @@ namespace AuthBot.Models
                 UserUniqueId = authResult.UserInfo.UniqueId,
                 ExpiresOnUtcTicks = authResult.ExpiresOn.UtcTicks,
                 TokenCache = tokenCache.Serialize(),
-                tokenType = "not defined via AD auth",
-                refreshToken = "not defined via AD auth",
-                authType = "ad"
+                tokenType = String.Empty,
+                refreshToken = String.Empty,
+                authType = "AD"
             };
 
             return result;
@@ -44,10 +44,10 @@ namespace AuthBot.Models
                 UserUniqueId = authResult.User.UniqueId,
                 ExpiresOnUtcTicks = authResult.ExpiresOn.UtcTicks,
                 TokenCache = tokenCache.Serialize(),
-                tokenType = "not defined via AD auth",
-                refreshToken = "not defined via AD auth",
+                tokenType = String.Empty,
+                refreshToken = String.Empty,
 
-                authType = "ad"
+                authType = "AD"
             };
 
             return result;
@@ -61,13 +61,13 @@ namespace AuthBot.Models
             var result = new AuthResult
             {
                 AccessToken = authResult.accessToken,
-                UserName = "not defined via VSO",
-                UserUniqueId = "not defined via VSO",
+                UserName = String.Empty,
+                UserUniqueId = String.Empty,
                 ExpiresOnUtcTicks = _expiresOnUtcTicks, 
                 TokenCache = new byte [0],
                 tokenType = authResult.tokenType,
                 refreshToken=authResult.refreshToken,
-                authType = "vso"
+                authType = "VSO"
             };
 
             return result;

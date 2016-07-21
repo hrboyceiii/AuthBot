@@ -50,7 +50,7 @@ namespace AuthBot.Helpers
             return authResult;
         }
 
-        public static string GenerateRequestPostData(string code)
+        private static string GenerateRequestPostData(string code)
         {
             return string.Format("client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={0}&grant_type=urn:ietf:params:oauth:grant-type:jwt-bearer&assertion={1}&redirect_uri={2}",
                 HttpUtility.UrlEncode(AuthSettings.ClientSecret),
@@ -59,7 +59,7 @@ namespace AuthBot.Helpers
                 );
         }
 
-        public static string GenerateRefreshPostData(string refreshToken)
+        private static string GenerateRefreshPostData(string refreshToken)
         {
             return string.Format("client_assertion_type=urn:ietf:params:oauth:client-assertion-type:jwt-bearer&client_assertion={0}&grant_type=refresh_token&assertion={1}&redirect_uri={2}",
                 HttpUtility.UrlEncode(AuthSettings.ClientSecret),
@@ -69,6 +69,11 @@ namespace AuthBot.Helpers
 
         }
 
+        public static bool IsTokenExpired(long _expiresOnUtcTicks) {
+
+            return DateTime.UtcNow.Ticks > _expiresOnUtcTicks;
+
+        }
 
     }
 }

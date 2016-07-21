@@ -21,6 +21,13 @@ namespace AuthBot
                     if (string.Equals(authResult.authType, "vso", StringComparison.OrdinalIgnoreCase))
                     {
                         //is Token still valid ?
+                        if (VisualStudioOnlineHelper.IsTokenExpired(authResult.ExpiresOnUtcTicks))
+                        {
+                            //renew token
+                            await context.PostAsync("Your VSO credentials expired and could not be renewed automatically!");
+                            await context.Logout();
+                            return null;
+                        }
 
                     }
                     else { 
