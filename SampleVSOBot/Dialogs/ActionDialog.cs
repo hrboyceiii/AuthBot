@@ -39,6 +39,8 @@ namespace SampleVSOBot.Dialogs
 
             if (message.Text == "logon")
             {
+
+
                 //endpoint v1
                 if (string.IsNullOrEmpty(await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"])))
                 {
