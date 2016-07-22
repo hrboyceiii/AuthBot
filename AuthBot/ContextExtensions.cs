@@ -95,11 +95,25 @@ namespace AuthBot
 
         public static async Task Logout(this IBotContext context)
         {
-            context.UserData.RemoveValue(ContextConstants.AuthResultKey);
-            context.UserData.RemoveValue(ContextConstants.MagicNumberKey);
-            context.UserData.RemoveValue(ContextConstants.MagicNumberValidated);
-            string signoutURl = "https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri=" + System.Net.WebUtility.UrlEncode(AuthSettings.RedirectUrl);
-            await context.PostAsync($"In order to finish the sign out, please click at this [link]({signoutURl}).");
+            AuthResult authResult;
+            string signoutURl;
+
+            if (context.UserData.TryGetValue(ContextConstants.AuthResultKey, out authResult))
+            { 
+                context.UserData.RemoveValue(ContextConstants.AuthResultKey);
+                context.UserData.RemoveValue(ContextConstants.MagicNumberKey);
+                context.UserData.RemoveValue(ContextConstants.MagicNumberValidated);
+                if (string.Equals(authResult.authType, "vso", StringComparison.OrdinalIgnoreCase))
+                {
+                    signoutURl = "//https://app.vssps.visualstudio.com/_signout";
+                }
+                else
+                {
+                    signoutURl = "https://login.microsoftonline.com/common/oauth2/logout?post_logout_redirect_uri=" + System.Net.WebUtility.UrlEncode(AuthSettings.RedirectUrl);
+                }
+                    
+                await context.PostAsync($"In order to finish the sign out, please click at this [link]({signoutURl}).");
+            }
         }
 
     }
