@@ -10,9 +10,12 @@ namespace SampleVSOBot.Dialogs
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
     using System.Configuration;
+    using Helpers;
+
     [Serializable]
     public class ActionDialog : IDialog<string>
     {
+
         public async Task StartAsync(IDialogContext context)
         {
             context.Wait(MessageReceivedAsync);
@@ -33,6 +36,29 @@ namespace SampleVSOBot.Dialogs
             context.Wait(MessageReceivedAsync);
         }
 
+        public async Task GetWorkItems(IDialogContext context)
+        {
+            var accessToken = await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"]);
+
+                try
+                {
+                    if (string.IsNullOrEmpty(accessToken))
+                    {
+                        await context.PostAsync($"Please logon first");
+                        context.Wait(MessageReceivedAsync);
+                    }
+                    else
+                    {
+
+                        String witems = await VSORestHelper.GetWorkItems(accessToken);
+                        await context.PostAsync(witems);
+                    }
+                }
+                catch (Exception exc)
+                { await context.PostAsync($"Error geting work items. Error: {exc.Message}"); }
+            
+            context.Wait(MessageReceivedAsync);
+        }
         public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> item)
         {
             var message = await item;
@@ -66,9 +92,13 @@ namespace SampleVSOBot.Dialogs
                 await context.Logout();
                 context.Wait(this.MessageReceivedAsync);
             }
+            else if (message.Text == "work")
+            {
+                await GetWorkItems(context);
+            }
             else
             {
-                await context.PostAsync("say what ?");
+                await context.PostAsync("say what ? Please say something like login, logout, token, echo or work");
                 context.Wait(MessageReceivedAsync);
             }
         }
