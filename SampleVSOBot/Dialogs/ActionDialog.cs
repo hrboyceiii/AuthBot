@@ -20,19 +20,53 @@ namespace SampleVSOBot.Dialogs
         {
             context.Wait(MessageReceivedAsync);
         }
-      
+
+
         public async Task TokenSample(IDialogContext context)
         {
+            
             //endpoint v1
             var accessToken = await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"]);
 
             if (string.IsNullOrEmpty(accessToken))
             {
-                return;
+                await context.PostAsync($"You don't have an access Token. Please logon first.");
+            }
+            else
+            {
+                AuthResult authResult;
+                if (context.UserData.TryGetValue(ContextConstants.AuthResultKey, out authResult))
+                {
+                    var expiresin= TimeSpan.FromTicks(authResult.ExpiresOnUtcTicks - DateTime.UtcNow.Ticks).TotalMinutes;
+                    if (expiresin < 0)
+                    { await context.PostAsync($"Your access token already expired"); }
+                    else
+                    {
+                        DateTime expiredDate = new DateTime(authResult.ExpiresOnUtcTicks);
+                        String expireDateStr = expiredDate.ToString("d/M/yyyy HH:mm:ss");
+                        await context.PostAsync($"Your access token expires in {expiresin} minutes ({expireDateStr})");
+                        await context.PostAsync($"Your access token is: {accessToken}");
+                    }
+
+                }   
             }
 
-            await context.PostAsync($"Your access token is: {accessToken}");
-
+            context.Wait(MessageReceivedAsync);
+        }
+        /// <summary>
+        /// For Testing Purposes / capability to force token expiration
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async Task ForceTokenExpiration(IDialogContext context)
+        {
+            AuthResult authResult;
+            if (context.UserData.TryGetValue(ContextConstants.AuthResultKey, out authResult))
+            {
+                authResult.ExpiresOnUtcTicks = 0;
+                context.StoreAuthResult(authResult);
+                await context.PostAsync($"Forced token to expire");
+            }
             context.Wait(MessageReceivedAsync);
         }
 
@@ -41,7 +75,7 @@ namespace SampleVSOBot.Dialogs
             var accessToken = await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"]);
 
                 try
-                {
+                {   //todo: check if token has expired
                     if (string.IsNullOrEmpty(accessToken))
                     {
                         await context.PostAsync($"Please logon first");
@@ -49,7 +83,6 @@ namespace SampleVSOBot.Dialogs
                     }
                     else
                     {
-
                         String witems = await VSORestHelper.GetWorkItems(accessToken);
                         await context.PostAsync(witems);
                     }
@@ -65,8 +98,6 @@ namespace SampleVSOBot.Dialogs
 
             if (message.Text == "logon")
             {
-
-
                 //endpoint v1
                 if (string.IsNullOrEmpty(await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"])))
                 {
@@ -74,6 +105,7 @@ namespace SampleVSOBot.Dialogs
                 }
                 else
                 {
+                    await context.PostAsync("already logged in.");
                     context.Wait(MessageReceivedAsync);
                 }
             }
@@ -87,6 +119,10 @@ namespace SampleVSOBot.Dialogs
             {
                 await TokenSample(context);               
             }
+            else if (message.Text == "expire")
+            {
+                await ForceTokenExpiration(context);
+            }
             else if (message.Text == "logout")
             {
                 await context.Logout();
@@ -98,7 +134,7 @@ namespace SampleVSOBot.Dialogs
             }
             else
             {
-                await context.PostAsync("say what ? Please say something like login, logout, token, echo or work");
+                await context.PostAsync("say what ? Please say something like logon, logout, token, echo or work");
                 context.Wait(MessageReceivedAsync);
             }
         }

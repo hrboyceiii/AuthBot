@@ -18,11 +18,10 @@ namespace SampleVSOBot.Helpers
             {
                 var apiVersion = "1.0";
                 StringBuilder strResult = new StringBuilder();
-
-                var account = AuthBot.Models.AuthSettings.Tenant;
+                
                 var query = "Select [System.Id] From WorkItems Where[System.WorkItemType] = 'Bug' order by [System.CreatedDate] desc";
 
-                var url = "https://" + account + ".visualstudio.com/defaultcollection/_apis/wit/";
+                var url = "https://" + AuthBot.Models.AuthSettings.Tenant + ".visualstudio.com/defaultcollection/_apis/wit/";
 
                 // Execute a query that returns work item IDs matching the specified criteria
                 using (var request = new HttpRequestMessage(HttpMethod.Post, url + "wiql"))
@@ -60,7 +59,7 @@ namespace SampleVSOBot.Helpers
 
                                 foreach (dynamic workItem in detailsWorkItems)
                                 {
-                                    strResult.AppendFormat("Work item: {0} ({1})",
+                                    strResult.AppendFormat("* Work item: {0} ({1})\n",
                                         workItem.fields["System.Id"],
                                         workItem.fields["System.Title"]);
                                 }
@@ -71,6 +70,8 @@ namespace SampleVSOBot.Helpers
                 }
             }
         }
+
+
     }
 
 }

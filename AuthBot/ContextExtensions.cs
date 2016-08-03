@@ -18,15 +18,25 @@ namespace AuthBot
             {
                 try
                 {
+                    //await context.PostAsync($"authToken={authResult.AccessToken}");
+                    //await context.PostAsync($"ExpiresOnUtcTicks={authResult.ExpiresOnUtcTicks}");
                     if (string.Equals(authResult.authType, "vso", StringComparison.OrdinalIgnoreCase))
                     {
                         //is Token still valid ?
-                        if (VisualStudioOnlineHelper.IsTokenExpired(authResult.ExpiresOnUtcTicks))
+                        if (String.IsNullOrEmpty(authResult.AccessToken))
+                        { await context.PostAsync("GetAccessToken called but no token exists.Logon first."); }
+                        else if (VisualStudioOnlineHelper.IsTokenExpired(authResult.ExpiresOnUtcTicks))
                         {
                             //renew token
-                            await context.PostAsync("Your VSO credentials expired and could not be renewed automatically!");
-                            await context.Logout();
-                            return null;
+                            DateTime expiredDate = new DateTime(authResult.ExpiresOnUtcTicks);
+                            String expireDateStr = expiredDate.ToString("d/M/yyyy HH:mm:ss");
+                            await context.PostAsync($"Your VSO credentials expired on {expireDateStr}");
+                            authResult = await VisualStudioOnlineHelper.RefreshTokenAsync(authResult.refreshToken);
+                            expiredDate = new DateTime(authResult.ExpiresOnUtcTicks);
+                            expireDateStr = expiredDate.ToString("d/M/yyyy HH:mm:ss");
+                            await context.PostAsync($"Token refreshed. New expire time: {expireDateStr}");
+                            context.StoreAuthResult(authResult);
+                            return authResult.AccessToken;
                         }
 
                     }
@@ -42,8 +52,8 @@ namespace AuthBot
                 catch (Exception ex)
                 {
                     Trace.TraceError("Failed to renew token: " + ex.Message);
-                    await context.PostAsync("Your credentials expired and could not be renewed automatically!");
-                    await context.Logout();
+                    await context.PostAsync("Exception in GetAccessToken: " + ex.Message);
+                    //await context.Logout();
                     return null;
                 }
                 return authResult.AccessToken;
@@ -105,7 +115,7 @@ namespace AuthBot
                 context.UserData.RemoveValue(ContextConstants.MagicNumberValidated);
                 if (string.Equals(authResult.authType, "vso", StringComparison.OrdinalIgnoreCase))
                 {
-                    signoutURl = "//https://app.vssps.visualstudio.com/_signout";
+                    signoutURl = "https://app.vssps.visualstudio.com/_signout";
                 }
                 else
                 {

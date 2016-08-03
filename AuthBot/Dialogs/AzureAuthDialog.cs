@@ -92,12 +92,15 @@ namespace AuthBot.Dialogs
                     {
                         var resumptionCookie = new ResumptionCookie(msg);
 
-                        var authenticationUrl = await AzureActiveDirectoryHelper.GetAuthUrlAsync(resumptionCookie, scopes);
-                       
-                        //var reply = msg.CreateReply();
-                        //reply.Recipient = msg.From;
-                        //reply.From = msg.Recipient;
-                        //reply.Text = $"You must be authenticated before you can proceed. Please, click [here]({authenticationUrl}) to log into your account.";
+                        String authenticationUrl;
+                        if (string.Equals(AuthSettings.Mode, "vso", StringComparison.OrdinalIgnoreCase))
+                        {
+                            authenticationUrl = VisualStudioOnlineHelper.GetAuthUrlAsync(resumptionCookie);
+                        }
+                        else
+                        { authenticationUrl = await AzureActiveDirectoryHelper.GetAuthUrlAsync(resumptionCookie, scopes); }
+
+                        
                         await context.PostAsync($"You must be authenticated before you can proceed. Please, click [here]({authenticationUrl}) to log into your account.");
 
                         context.Wait(this.MessageReceivedAsync);
