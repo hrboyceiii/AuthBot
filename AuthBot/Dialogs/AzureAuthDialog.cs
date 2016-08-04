@@ -7,21 +7,27 @@ namespace AuthBot.Dialogs
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Connector;
     using Models;
+    using Microsoft.Bot.Builder.Dialogs.Internals;
+    using Autofac;
+    using System.Collections.Generic;
 
     [Serializable]
     public class AzureAuthDialog : IDialog<string>
     {
         private string resourceId;
         private string[] scopes;
+        private string prompt;
 
         public AzureAuthDialog(string resourceId)
         {
             this.resourceId = resourceId;
         }
-        public AzureAuthDialog(string[] scopes)
+        public AzureAuthDialog(string[] scopes,string prompt="Please click to sign in: ")
         {
             this.scopes = scopes;
+            this.prompt = prompt;
         }
+
 
         public async Task StartAsync(IDialogContext context)
         {
@@ -37,6 +43,9 @@ namespace AuthBot.Dialogs
             int magicNumber = 0;
             if (context.UserData.TryGetValue(ContextConstants.AuthResultKey, out authResult))
             {
+                //IMPORTANT: DO NOT REMOVE THE MAGIC NUMBER CHECK THAT WE DO HERE. THIS IS AN ABSOLUTE SECURITY REQUIREMENT
+                //REMOVING THIS WILL REMOVE YOUR BOT AND YOUR USERS TO SECURITY VULNERABILITIES. 
+                //MAKE SURE YOU UNDERSTAND THE ATTACK VECTORS AND WHY THIS IS IN PLACE.
                 context.UserData.TryGetValue<string>(ContextConstants.MagicNumberValidated, out validated);
                 if (validated == "true")
                 {
@@ -92,17 +101,24 @@ namespace AuthBot.Dialogs
                     {
                         var resumptionCookie = new ResumptionCookie(msg);
 
-                        String authenticationUrl;
-                        if (string.Equals(AuthSettings.Mode, "vso", StringComparison.OrdinalIgnoreCase))
-                        {
-                            authenticationUrl = VisualStudioOnlineHelper.GetAuthUrlAsync(resumptionCookie);
-                        }
-                        else
-                        { authenticationUrl = await AzureActiveDirectoryHelper.GetAuthUrlAsync(resumptionCookie, scopes); }
-
-                        
+                        var authenticationUrl = await AzureActiveDirectoryHelper.GetAuthUrlAsync(resumptionCookie, scopes);
+                       
+                        //var reply = msg.CreateReply();
+                        //reply.Recipient = msg.From;
+                        //reply.From = msg.Recipient;
+                        //reply.Text = $"You must be authenticated before you can proceed. Please, click [here]({authenticationUrl}) to log into your account.";
                         await context.PostAsync($"You must be authenticated before you can proceed. Please, click [here]({authenticationUrl}) to log into your account.");
 
+                            cardButtons.Add(plButton);
+                            SigninCard plCard = new SigninCard(this.prompt, new List<CardAction>() { plButton });
+                            Attachment plAttachment = plCard.ToAttachment();
+                            response.Attachments.Add(plAttachment);
+                            await context.PostAsync(response);
+                        }
+                        else
+                        {
+                            await context.PostAsync(this.prompt + authenticationUrl);
+                        }
                         context.Wait(this.MessageReceivedAsync);
                     }
                 }
