@@ -22,35 +22,28 @@ namespace SampleVSOBot.Dialogs
         }
 
 
-        public async Task TokenSample(IDialogContext context)
+        public async Task GetTokenInfo(IDialogContext context)
         {
             
-            //endpoint v1
-            var accessToken = await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"]);
+            AuthResult authResult;
+            if (context.UserData.TryGetValue(ContextConstants.AuthResultKey, out authResult))
+            {
+                DateTime expiredDate = new DateTime(authResult.ExpiresOnUtcTicks);
+                String expireDateStr = expiredDate.ToString("d/M/yyyy HH:mm:ss");
 
-            if (string.IsNullOrEmpty(accessToken))
-            {
-                await context.PostAsync($"You don't have an access Token. Please logon first.");
-            }
-            else
-            {
-                AuthResult authResult;
-                if (context.UserData.TryGetValue(ContextConstants.AuthResultKey, out authResult))
+                var expiresin= TimeSpan.FromTicks(authResult.ExpiresOnUtcTicks - DateTime.UtcNow.Ticks).TotalMinutes;
+                if (expiresin < 0)
                 {
-                    var expiresin= TimeSpan.FromTicks(authResult.ExpiresOnUtcTicks - DateTime.UtcNow.Ticks).TotalMinutes;
-                    if (expiresin < 0)
-                    { await context.PostAsync($"Your access token already expired"); }
-                    else
-                    {
-                        DateTime expiredDate = new DateTime(authResult.ExpiresOnUtcTicks);
-                        String expireDateStr = expiredDate.ToString("d/M/yyyy HH:mm:ss");
-                        await context.PostAsync($"Your access token expires in {expiresin} minutes ({expireDateStr})");
-                        await context.PostAsync($"Your access token is: {accessToken}");
-                    }
+                    await context.PostAsync($"Your access token already expired on {expireDateStr}");
+                }
+                else
+                {
+                    await context.PostAsync($"Your access token expires in {expiresin} minutes ({expireDateStr})");
+                    await context.PostAsync($"Your access token is: {authResult.AccessToken}");
+                }
 
-                }   
-            }
-
+            }   
+            
             context.Wait(MessageReceivedAsync);
         }
         /// <summary>
@@ -117,7 +110,7 @@ namespace SampleVSOBot.Dialogs
             }
             else if (message.Text == "token")
             {
-                await TokenSample(context);               
+                await GetTokenInfo(context);               
             }
             else if (message.Text == "expire")
             {
