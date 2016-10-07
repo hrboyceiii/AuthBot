@@ -109,7 +109,7 @@ namespace AuthBot.Dialogs
                         else
                         { authenticationUrl = await AzureActiveDirectoryHelper.GetAuthUrlAsync(resumptionCookie, scopes); }
 
-                        if (msg.ChannelId == "skype" && !string.Equals(AuthSettings.Mode, "vso", StringComparison.OrdinalIgnoreCase))
+                        if (msg.ChannelId == "skype" )
                         {
                              IMessageActivity response = context.MakeMessage();
                              response.Recipient = msg.From;
