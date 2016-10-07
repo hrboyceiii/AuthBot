@@ -39,7 +39,7 @@ namespace SampleVSOBot.Dialogs
                 else
                 {
                     await context.PostAsync($"Your access token expires in {expiresin} minutes ({expireDateStr})");
-                    await context.PostAsync($"Your access token starts with: \"{authResult.AccessToken.Substring(0,20)}\" and it has {authResult.AccessToken.Length} characters.");
+                    await context.PostAsync($"Your access token starts with \"{authResult.AccessToken.Substring(0,20)}\" and it has {authResult.AccessToken.Length} characters.");
                 }
 
             }
@@ -69,7 +69,7 @@ namespace SampleVSOBot.Dialogs
         {
             var message = await item;
 
-            if (message.Text.ToLower() == "logon")
+            if (message.Text.ToLower() == "logon" || message.Text.ToLower() == "login")
             {
                 //endpoint v1
                 if (string.IsNullOrEmpty(await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"])))

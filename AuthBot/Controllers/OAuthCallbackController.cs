@@ -15,6 +15,7 @@ namespace AuthBot.Controllers
     using System.Configuration;
     using System.Threading;
     using System.Security.Cryptography;
+    using Microsoft.Rest;
 
     public class OAuthCallbackController : ApiController
     {
@@ -69,7 +70,6 @@ namespace AuthBot.Controllers
                 {
                     var client = scope.Resolve<IConnectorClient>();                
                     AuthResult authResult = null;
-
                     if (string.Equals(AuthSettings.Mode, "v1", StringComparison.OrdinalIgnoreCase))
                     {
                         // Exchange the Auth code with Access token
@@ -85,12 +85,7 @@ namespace AuthBot.Controllers
                     else if (string.Equals(AuthSettings.Mode, "b2c", StringComparison.OrdinalIgnoreCase))
                     {
                     }
-                    else if (string.Equals(AuthSettings.Mode, "vso", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Exchange the Auth code with Access token
-                        authResult = await VisualStudioOnlineHelper.GetTokenByAuthCodeAsync(code);
-                    }
-
+                    
                     IStateClient sc = scope.Resolve<IStateClient>();
 
                     var dataBag = scope.Resolve<IBotData>();
