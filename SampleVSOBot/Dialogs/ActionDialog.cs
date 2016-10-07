@@ -31,7 +31,7 @@ namespace SampleVSOBot.Dialogs
                 DateTime expiredDate = new DateTime(authResult.ExpiresOnUtcTicks);
                 String expireDateStr = expiredDate.ToString("d/M/yyyy HH:mm:ss");
 
-                var expiresin= TimeSpan.FromTicks(authResult.ExpiresOnUtcTicks - DateTime.UtcNow.Ticks).TotalMinutes;
+                var expiresin = TimeSpan.FromTicks(authResult.ExpiresOnUtcTicks - DateTime.UtcNow.Ticks).TotalMinutes;
                 if (expiresin < 0)
                 {
                     await context.PostAsync($"Your access token already expired on {expireDateStr}");
@@ -39,10 +39,12 @@ namespace SampleVSOBot.Dialogs
                 else
                 {
                     await context.PostAsync($"Your access token expires in {expiresin} minutes ({expireDateStr})");
-                    await context.PostAsync($"Your access token is: {authResult.AccessToken}");
+                    await context.PostAsync($"Your access token starts with: \"{authResult.AccessToken.Substring(0,20)}\" and it has {authResult.AccessToken.Length} characters.");
                 }
 
-            }   
+            }
+            else
+            { await context.PostAsync($"Please logon first"); }
             
             context.Wait(MessageReceivedAsync);
         }
@@ -63,33 +65,11 @@ namespace SampleVSOBot.Dialogs
             context.Wait(MessageReceivedAsync);
         }
 
-        public async Task GetWorkItems(IDialogContext context)
-        {
-            var accessToken = await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"]);
-
-                try
-                {   //todo: check if token has expired
-                    if (string.IsNullOrEmpty(accessToken))
-                    {
-                        await context.PostAsync($"Please logon first");
-                        context.Wait(MessageReceivedAsync);
-                    }
-                    else
-                    {
-                        String witems = await VSORestHelper.GetWorkItems(accessToken);
-                        await context.PostAsync(witems);
-                    }
-                }
-                catch (Exception exc)
-                { await context.PostAsync($"Error geting work items. Error: {exc.Message}"); }
-            
-            context.Wait(MessageReceivedAsync);
-        }
         public virtual async Task MessageReceivedAsync(IDialogContext context, IAwaitable<IMessageActivity> item)
         {
             var message = await item;
 
-            if (message.Text == "logon")
+            if (message.Text.ToLower() == "logon")
             {
                 //endpoint v1
                 if (string.IsNullOrEmpty(await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"])))
@@ -102,36 +82,62 @@ namespace SampleVSOBot.Dialogs
                     context.Wait(MessageReceivedAsync);
                 }
             }
-            else if (message.Text == "echo")
+            else if (message.Text.ToLower() == "echo")
             {
                 await context.PostAsync("echo");
 
                 context.Wait(this.MessageReceivedAsync);
             }
-            else if (message.Text == "token")
+            else if (message.Text.ToLower() == "token")
             {
                 await GetTokenInfo(context);               
             }
-            else if (message.Text == "expire")
+            else if (message.Text.ToLower() == "expire")
             {
                 await ForceTokenExpiration(context);
             }
-            else if (message.Text == "logout")
+            else if (message.Text.ToLower() == "logout")
             {
                 await context.Logout();
                 context.Wait(this.MessageReceivedAsync);
             }
-            else if (message.Text == "work")
+            else if (message.Text.ToLower() == "projects")
             {
-                await GetWorkItems(context);
+                await GetVSOProjectList(context);
             }
             else
             {
-                await context.PostAsync("say what ? Please say something like logon, logout, token, echo or work");
+                await context.PostAsync("say what ? Please say something like logon, logout, token, echo or projects");
                 context.Wait(MessageReceivedAsync);
             }
         }
-        
+
+
+        public async Task GetVSOProjectList(IDialogContext context)
+        {
+            var accessToken = await context.GetAccessToken(ConfigurationManager.AppSettings["ActiveDirectory.ResourceId"]);
+
+            try
+            {   //todo: check if token has expired
+                if (string.IsNullOrEmpty(accessToken))
+                {
+                    await context.PostAsync("Please logon first");
+                    context.Wait(MessageReceivedAsync);
+                }
+                else
+                {
+                    //String witems = await VSORestHelper.GetWorkItems(accessToken);
+                    //String witems = await VSORestHelper.QueryWorkItems_Query(accessToken);
+                    //String witems = await VSORestHelper.QueryWorkItems_Wiql(accessToken);
+                    String witems = await VSORestHelper.ListProjects(accessToken);
+                    await context.PostAsync(witems);
+                }
+            }
+            catch (Exception exc)
+            { await context.PostAsync($"Error geting work items. Error:\n {exc.Message}"); }
+
+            context.Wait(MessageReceivedAsync);
+        }
         private async Task ResumeAfterAuth(IDialogContext context, IAwaitable<string> result)
         {
             var message = await result;
