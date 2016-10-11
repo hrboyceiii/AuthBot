@@ -85,7 +85,12 @@ namespace AuthBot.Controllers
                     else if (string.Equals(AuthSettings.Mode, "b2c", StringComparison.OrdinalIgnoreCase))
                     {
                     }
-                    
+                    else if (string.Equals(AuthSettings.Mode, "vso", StringComparison.OrdinalIgnoreCase))
+                    {
+                        // Exchange the Auth code with Access token
+                        authResult = await VisualStudioOnlineHelper.GetTokenByAuthCodeAsync(code);
+                    }
+
                     IStateClient sc = scope.Resolve<IStateClient>();
 
                     var dataBag = scope.Resolve<IBotData>();
