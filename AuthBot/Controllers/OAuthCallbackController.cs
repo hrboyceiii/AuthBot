@@ -4,23 +4,23 @@ namespace AuthBot.Controllers
     using System;
     using System.Net;
     using System.Net.Http;
+    using System.Security.Cryptography;
+    using System.Threading;
     using System.Threading.Tasks;
+    using System.Web;
     using System.Web.Http;
     using Autofac;
     using Helpers;
     using Microsoft.Bot.Builder.Dialogs;
     using Microsoft.Bot.Builder.Dialogs.Internals;
     using Microsoft.Bot.Connector;
-    using Models;
-    using System.Configuration;
-    using System.Threading;
-    using System.Security.Cryptography;
     using Microsoft.Rest;
+    using Models;
 
     public class OAuthCallbackController : ApiController
     {
         private static RNGCryptoServiceProvider rngCsp = new RNGCryptoServiceProvider();
-
+        private static readonly uint MaxWriteAttempts = 5;
 
         [HttpGet]
         [Route("api/OAuthCallback")]
@@ -43,11 +43,22 @@ namespace AuthBot.Controllers
         }
         [HttpGet]
         [Route("api/OAuthCallback")]
-        public async Task<HttpResponseMessage> OAuthCallback([FromUri] string code, [FromUri] string state, CancellationToken cancellationToken)
+        public async Task<HttpResponseMessage> OAuthCallback(
+            //[FromUri] string userId, 
+            //[FromUri] string botId, 
+            //[FromUri] string conversationId, 
+            //[FromUri] string channelId, 
+            //[FromUri] string serviceUrl, 
+            //[FromUri] string locale, 
+            [FromUri] string code, 
+            [FromUri] string state, 
+            CancellationToken cancellationToken)
         {
             try
             {
-              
+
+                var queryParams = HttpUtility.ParseQueryString(AzureActiveDirectoryHelper.TokenDecoder(state));
+
                 object tokenCache = null;
                 if (string.Equals(AuthSettings.Mode, "v1", StringComparison.OrdinalIgnoreCase))
                 {
@@ -62,7 +73,7 @@ namespace AuthBot.Controllers
                 }
 
                 // Get the resumption cookie
-                var resumptionCookie = UrlToken.Decode<ResumptionCookie>(state);
+                var resumptionCookie = new ResumptionCookie(queryParams["userId"], queryParams["botId"], queryParams["conversationId"], queryParams["channelId"], queryParams["serviceUrl"], queryParams["locale"]);
                 // Create the message that is send to conversation to resume the login flow
                 var message = resumptionCookie.GetMessage();
                
@@ -85,26 +96,43 @@ namespace AuthBot.Controllers
                     else if (string.Equals(AuthSettings.Mode, "b2c", StringComparison.OrdinalIgnoreCase))
                     {
                     }
-                    else if (string.Equals(AuthSettings.Mode, "vso", StringComparison.OrdinalIgnoreCase))
-                    {
-                        // Exchange the Auth code with Access token
-                        authResult = await VisualStudioOnlineHelper.GetTokenByAuthCodeAsync(code);
-                    }
-
+                    
                     IStateClient sc = scope.Resolve<IStateClient>();
 
-                    var dataBag = scope.Resolve<IBotData>();
-                    await dataBag.LoadAsync(cancellationToken);
+                    //IMPORTANT: DO NOT REMOVE THE MAGIC NUMBER CHECK THAT WE DO HERE. THIS IS AN ABSOLUTE SECURITY REQUIREMENT
+                    //REMOVING THIS WILL REMOVE YOUR BOT AND YOUR USERS TO SECURITY VULNERABILITIES. 
+                    //MAKE SURE YOU UNDERSTAND THE ATTACK VECTORS AND WHY THIS IS IN PLACE.
                     int magicNumber = GenerateRandomNumber();
-                    dataBag.UserData.SetValue(ContextConstants.AuthResultKey, authResult);
-                    dataBag.UserData.SetValue(ContextConstants.MagicNumberKey, magicNumber);
-                    dataBag.UserData.SetValue(ContextConstants.MagicNumberValidated, "false");
-                    await dataBag.FlushAsync(cancellationToken);
-                  
-                    await Conversation.ResumeAsync(resumptionCookie, message);
-                    
+                    bool writeSuccessful = false;
+                    uint writeAttempts = 0;
+                    while (!writeSuccessful && writeAttempts++ < MaxWriteAttempts)
+                    {
+                        try
+                        {
+                            BotData userData = sc.BotState.GetUserData(message.ChannelId, message.From.Id);
+                            userData.SetProperty(ContextConstants.AuthResultKey, authResult);
+                            userData.SetProperty(ContextConstants.MagicNumberKey, magicNumber);
+                            userData.SetProperty(ContextConstants.MagicNumberValidated, "false");
+                            sc.BotState.SetUserData(message.ChannelId, message.From.Id, userData);
+                            writeSuccessful = true;
+                        }
+                        catch (HttpOperationException)
+                        {
+                            writeSuccessful = false;
+                        }
+                    }
                     var resp = new HttpResponseMessage(HttpStatusCode.OK);
-                    resp.Content = new StringContent($"<html><body>Almost done! Please copy this number and paste it back to your chat so your authentication can complete: {magicNumber}.</body></html>", System.Text.Encoding.UTF8, @"text/html");
+                    if (!writeSuccessful)
+                    {
+                        message.Text = String.Empty; // fail the login process if we can't write UserData
+                        await Conversation.ResumeAsync(resumptionCookie, message);
+                        resp.Content = new StringContent("<html><body>Could not log you in at this time, please try again later</body></html>", System.Text.Encoding.UTF8, @"text/html");
+                    }
+                    else
+                    {
+                        await Conversation.ResumeAsync(resumptionCookie, message);
+                        resp.Content = new StringContent($"<html><body>Almost done! Please copy this number and paste it back to your chat so your authentication can complete: {magicNumber}.</body></html>", System.Text.Encoding.UTF8, @"text/html");
+                    }
                     return resp;
                 }
             }
