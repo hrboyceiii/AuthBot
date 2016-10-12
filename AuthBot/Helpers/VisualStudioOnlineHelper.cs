@@ -12,15 +12,18 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Web;
 
+
 namespace AuthBot.Helpers
 {
     class VisualStudioOnlineHelper
     {
         public static string GetAuthUrlAsync(ResumptionCookie resumptionCookie)
         {
-            //To Do Change Tenant to Scope
-            var encodedCookie = Microsoft.Bot.Builder.Dialogs.UrlToken.Encode(resumptionCookie);
-            var scopes = String.Join(",", AuthSettings.Scopes); 
+            
+            var resumptionCookieAsParams = String.Format("userId={0}&botId={1}&conversationId={2}&channelId={3}&serviceUrl={4}&locale={5}", resumptionCookie.Address.UserId,resumptionCookie.Address.BotId, resumptionCookie.Address.ConversationId, resumptionCookie.Address.ChannelId, resumptionCookie.Address.ServiceUrl, resumptionCookie.Locale);
+            var encodedCookie = HttpServerUtility.UrlTokenEncode(Encoding.UTF8.GetBytes(resumptionCookieAsParams));
+
+             var scopes = String.Join(",", AuthSettings.Scopes); 
             return String.Format("{0}/oauth2/authorize?client_id={1}&response_type=Assertion&state={2}&scope={3}&redirect_uri={4}", AuthSettings.EndpointUrl, AuthSettings.ClientId, encodedCookie, scopes, AuthSettings.RedirectUrl);
         }
         public static async Task<AuthResult> GetTokenByAuthCodeAsync(string authorizationCode)
@@ -101,7 +104,6 @@ namespace AuthBot.Helpers
             return DateTime.UtcNow.Ticks > _expiresOnUtcTicks;
 
         }
-
 
     }
 }

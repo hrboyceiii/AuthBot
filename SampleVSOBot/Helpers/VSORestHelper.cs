@@ -5,7 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.TeamFoundation.Core.WebApi;
 using Microsoft.VisualStudio.Services.Common;
-
+using System.Net.Http;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
 
 namespace SampleVSOBot.Helpers
 {
@@ -33,8 +37,8 @@ namespace SampleVSOBot.Helpers
             return retStr.ToString();
         }
 
-        //Other sample ways to query TFS
-        /*
+        #region Other sample ways to query TFS
+        
         public static async Task<String> GetWorkItems(string token)
         {
             using (var client = new HttpClient())
@@ -202,7 +206,7 @@ namespace SampleVSOBot.Helpers
             return "done";
         }
 
-        */
+        #endregion  
     }
 
 }
