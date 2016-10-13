@@ -41,3 +41,4 @@ projects | After you logged in, it will connect to Visual Studio Online (via RES
 ###https://app.vsaex.visualstudio.com/
 ###https://app.vsaex.visualstudio.com/app/register
 ###[Authorize access to REST APIs with OAuth 2.0](https://www.visualstudio.com/docs/integrate/get-started/auth/oauth)
+###[API Sandbox - Select Visual Studio Online on the left](https://apisandbox.msdn.microsoft.com/)
