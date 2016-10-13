@@ -1,4 +1,6 @@
-#Mode details about authenticating with Visual Studio Online
+#Using Authbot to authenticate in Visual Studio Online
 ##Configuring web.config
+
+##Bot in action
 
 ## VSO oAuth flow 
