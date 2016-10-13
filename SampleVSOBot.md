@@ -3,16 +3,16 @@ Here are more details about VSO authentication with Authbot
 
 ##Commands
 The sample bot understands the following commands:
-###logon or login
-This will kick off the login process
-###logout
-If will log you out
-###token
-Will show your current VSO token. If the token expired, it will request a new one.
-###echo
-Will just reply echo so you know the bot is alive.
-###projects
-After you logged in, it will connect to Visual Studio Online (via REST Api) and query the List of projects at root level.
+
+Command | Description
+--- | --- 
+*Still* | `renders` 
+logon or login | This will kick off the login process
+logout | If will log you out
+token | Will show your current VSO token. If the token expired, it will request a new one.
+echo | Will just reply echo so you know the bot is alive.
+projects | After you logged in, it will connect to Visual Studio Online (via REST Api) and query the List of projects at root level.
+
 ##Bot in action
 <img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="600">
 
