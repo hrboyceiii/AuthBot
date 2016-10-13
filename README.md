@@ -55,6 +55,15 @@ B2C enables users to sign up to your AAD tenant using external identity provider
 
 This model is not yet supported by this library. We're working on it.
 
+### Visual Studio Online (VSO):
+Visual Studio Online (http://www.visualstudio.com).
+To authenticate with VSO you´ll need:
+
+1. You will register an application in https://app.vsaex.visualstudio.com/app/register. Unfortunatly currently you cannot specify localhost as the Authorization Callback URL. So you'll not be able to fully test the authentication flow with Bot Emulator. You will need to deploy to a site other than localhost.
+2. During registration, you will select the scopes that your application needs. The application code itself will request for specific permissions in runtime and it needs to be a subset of the scopes defined in the registration process. The scopes are defined at logon time.
+3. Look at SampleVSOBot project. Configure the <appsettings> area with your settings.
+4. Check here for more details.
+
 ### Tips with setup
 
 Regardless of whether you use endpoints v1 or v2, once you register your application you need to set the redirect URI to <your host address>/api/OAuthCallback. For example, if your bot will run on http://localhost:1234, then the redirect URI will have to be http://localhost:1234/api/OAuthCallback. This ensures that once the user finishes the login, your bot will become aware of it.
