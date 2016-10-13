@@ -2,7 +2,7 @@
 Here are more details about VSO authentication with Authbot
 
 ##Bot in action
-<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="400">
+<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="500">
 
 ##Configuring web.config
 ```xml
@@ -24,7 +24,7 @@ Here are more details about VSO authentication with Authbot
 ```
 
 ## VSO oAuth flow 
-<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOFlow.PNG" width="400">
+<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOFlow.PNG" width="800">
 
 ##Relevant links
 https://app.vsaex.visualstudio.com/
