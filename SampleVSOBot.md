@@ -2,7 +2,7 @@
 Here are more details about VSO authentication with Authbot
 
 ##Bot in action
-<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="500">
+<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="600">
 
 ##Configuring web.config
 ```xml
@@ -24,10 +24,9 @@ Here are more details about VSO authentication with Authbot
 ```
 
 ## VSO oAuth flow 
-<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOFlow.PNG" width="800">
+<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOFlow.PNG" width="1024">
 
 ##Relevant links
-https://app.vsaex.visualstudio.com/
-https://app.vsaex.visualstudio.com/app/register
-Authorize access to REST APIs with OAuth 2.0
-https://www.visualstudio.com/docs/integrate/get-started/auth/oauth
+###https://app.vsaex.visualstudio.com/
+###https://app.vsaex.visualstudio.com/app/register
+###[Authorize access to REST APIs with OAuth 2.0](https://www.visualstudio.com/docs/integrate/get-started/auth/oauth)
