@@ -1,4 +1,9 @@
 #Using Authbot to authenticate in Visual Studio Online
+Here are more details about VSO authentication with Authbot
+
+##Bot in action
+<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="400">
+
 ##Configuring web.config
 ```xml
   <appSettings>
@@ -17,8 +22,6 @@
     <add key="ActiveDirectory.RedirectUrl" value="https://tiagonmasbot.azurewebsites.net/api/OAuthCallback"/>
   </appSettings>
 ```
-##Bot in action
-<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="250">
 
 ## VSO oAuth flow 
 
