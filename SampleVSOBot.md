@@ -2,8 +2,7 @@
 ##Configuring web.config
 
 ##Bot in action
-
-<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="150">
+<img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="250">
 
 ## VSO oAuth flow 
 
