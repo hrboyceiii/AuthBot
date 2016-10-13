@@ -6,7 +6,6 @@ The sample bot understands the following commands:
 
 Command | Description
 --- | --- 
-*Still* | `renders` 
 logon or login | This will kick off the login process
 logout | If will log you out
 token | Will show your current VSO token. If the token expired, it will request a new one.
