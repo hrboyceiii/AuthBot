@@ -16,7 +16,7 @@
     <add key="ActiveDirectory.ClientSecret" value="Your Client Secret"/>
     <add key="ActiveDirectory.RedirectUrl" value="https://tiagonmasbot.azurewebsites.net/api/OAuthCallback"/>
   </appSettings>
-```xml
+```
 ##Bot in action
 <img src="https://github.com/tiagonmas/AuthBot/blob/master/VSOBotSampeInAction.PNG" width="250">
 
