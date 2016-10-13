@@ -39,7 +39,7 @@ namespace SampleVSOBot.Dialogs
                 else
                 {
                     await context.PostAsync($"Your access token expires in {expiresin} minutes ({expireDateStr})");
-                    await context.PostAsync($"Your access token starts with \"{authResult.AccessToken.Substring(0,20)}\" and it has {authResult.AccessToken.Length} characters.");
+                    await context.PostAsync($"Your access token is \"{authResult.AccessToken}\".");
                 }
 
             }

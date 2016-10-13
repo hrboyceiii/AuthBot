@@ -105,17 +105,18 @@ namespace SampleVSOBot.Helpers
             }
         }
 
+        
         public static async Task<String> QueryWorkItems_Query(string token)
         {
             string retStr="Nothing to return";
             string _personalAccessToken = token;
-            Uri _uri = new Uri("https://dpeted.visualstudio.com");
+            Uri uri = new Uri("https://" + AuthBot.Models.AuthSettings.Tenant + ".visualstudio.com/");
             VssBasicCredential _credentials = new VssBasicCredential("", _personalAccessToken);
 
             string project = "TED Consumer";
             string query = "Shared Queries/FY17/All Activities";
 
-            using (WorkItemTrackingHttpClient workItemTrackingHttpClient = new WorkItemTrackingHttpClient(_uri, _credentials))
+            using (WorkItemTrackingHttpClient workItemTrackingHttpClient = new WorkItemTrackingHttpClient(uri, _credentials))
             {
                 QueryHierarchyItem queryItem;
 
@@ -155,11 +156,12 @@ namespace SampleVSOBot.Helpers
             }
             return retStr;
         }
+        
 
         public static async Task<String> QueryWorkItems_Wiql(string token)
         {
             string _personalAccessToken = token;
-            Uri _uri = new Uri("https://dpeted.visualstudio.com");
+            Uri uri = new Uri("https://" + AuthBot.Models.AuthSettings.Tenant + ".visualstudio.com/");
             VssBasicCredential _credentials = new VssBasicCredential("", _personalAccessToken);
 
             //needed to scope our query to the project
@@ -178,7 +180,7 @@ namespace SampleVSOBot.Helpers
             };
 
             //create instance of work item tracking http client
-            using (WorkItemTrackingHttpClient workItemTrackingHttpClient = new WorkItemTrackingHttpClient(_uri, _credentials))
+            using (WorkItemTrackingHttpClient workItemTrackingHttpClient = new WorkItemTrackingHttpClient(uri, _credentials))
             {
                 //execute the query to get the list of work items in teh results
                 WorkItemQueryResult workItemQueryResult = workItemTrackingHttpClient.QueryByWiqlAsync(wiql).Result;
