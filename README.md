@@ -12,6 +12,8 @@ The goals are:
 
 * Enable scenarios where bots need to communicate with other services such as Office 365 or Azure by obtaining access tokens
 
+* Support authentication to Visual Studio Team Services (www.visualstudio.com)
+
 
 ## How does it work?
 
